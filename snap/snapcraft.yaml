@@ -1,0 +1,59 @@
+name: rockpro64
+base: core18
+version: '0.1'
+summary: Gadget snap for the RockPro64
+description: |
+  This is my-snap's description. You have a paragraph or two to tell the
+  most important story about your snap. Keep it under 100 words though,
+  we live in tweetspace and your description wants to look good in the snap
+  store.
+
+grade: stable
+confinement: strict
+type: gadget
+architectures:
+  - build-on: amd64
+    run-on: arm64
+
+parts:
+  uboot:
+    source: https://github.com/mrfixit2001/rockchip-uboot.git
+    plugin: nil
+    override-build: |
+      git apply -v ../../../rockpro.patch
+      TCHAINVER="$(wget -q -O - \
+                 https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/| \
+                 html2text -width 200|grep 'x86_64_aarch64-linux-gnu.tar.xz '|cut -d' ' -f2)"
+      wget https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/$TCHAINVER
+      tar xf $TCHAINVER
+      mv $(echo $TCHAINVER|sed 's/.tar.xz$//') toolchain
+      # build u-boot
+      CROSS_COMPILE=$(pwd)/toolchain/bin/aarch64-linux-gnu- make evb-rk3399_defconfig
+      CROSS_COMPILE=$(pwd)/toolchain/bin/aarch64-linux-gnu- make
+
+      mkdir -p $SNAPCRAFT_PART_INSTALL/boot-assets
+
+      # grab the required binary blobs and tools from rockchip
+      git clone --depth=1 https://github.com/rockchip-linux/rkbin.git
+      tools/mkimage -n rk3399 -T rksd -d rkbin/bin/rk33/rk3399_ddr_933MHz_v1.22.bin $SNAPCRAFT_PART_INSTALL/boot-assets/idbloader.img
+      cat rkbin/bin/rk33/rk3399_miniloader_v1.19.bin >> $SNAPCRAFT_PART_INSTALL/boot-assets/idbloader.img
+      rkbin/tools/loaderimage --pack --uboot ./u-boot-dtb.bin $SNAPCRAFT_PART_INSTALL/boot-assets/uboot.img 0x200000
+      sed -i 's/bin/rkbin\/bin/' rkbin/RKTRUST/RK3399TRUST.ini
+      echo "$(pwd)"
+      rkbin/tools/trust_merger rkbin/RKTRUST/RK3399TRUST.ini
+      mv trust.img $SNAPCRAFT_PART_INSTALL/boot-assets/
+
+      # put environment in place
+      tools/mkenvimage -r -s 131072 -o $SNAPCRAFT_PART_INSTALL/uboot.env ../../../uboot.env.in
+      ln -s uboot.env $SNAPCRAFT_PART_INSTALL/uboot.conf
+
+    build-packages:
+      - bc
+      - bison
+      - build-essential
+      - device-tree-compiler
+      - flex
+      - git
+      - libpython2.7-dev
+      - python-minimal
+      - gcc-aarch64-linux-gnu

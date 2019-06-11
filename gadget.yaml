@@ -1,0 +1,30 @@
+device-tree: rk3399-rockpro64.dtb
+device-tree-origin: kernel
+volumes:
+  nanopc-t4:
+    bootloader: u-boot
+    schema: mbr
+    structure:
+      - name: SPL
+        type: bare
+        size: 166400
+        offset: 32768
+        content:
+          - image: boot-assets/idbloader.img
+      - name: u-boot
+        type: bare
+        size: 4194304
+        offset: 8388608
+        content:
+          - image: boot-assets/uboot.img
+      - name: trust
+        type: bare
+        size: 4194304
+        offset: 12582912
+        content:
+          - image: boot-assets/trust.img
+      - name: system-boot
+        type: 0C
+        filesystem: vfat
+        filesystem-label: system-boot
+        size: 128M

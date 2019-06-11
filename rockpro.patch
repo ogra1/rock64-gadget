@@ -1,0 +1,20 @@
+diff --git a/include/configs/rk3399_common.h b/include/configs/rk3399_common.h
+index 70db093..5238014 100644
+--- a/include/configs/rk3399_common.h
++++ b/include/configs/rk3399_common.h
+@@ -76,6 +76,15 @@
+ 
+ /* enable usb config for usb ether */
+ 
++#undef CONFIG_ENV_SIZE
++#define CONFIG_ENV_SIZE (128 * 1024)
++
++#define CONFIG_ENV_IS_IN_FAT
++#define CONFIG_ENV_FAT_INTERFACE "mmc"
++#define CONFIG_ENV_FAT_DEVICE_AND_PART "1"
++#define CONFIG_ENV_FAT_FILE "uboot.env"
++#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
++
+ /* rockchip ohci host driver */
+ #define CONFIG_USB_OHCI_NEW
+ #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
