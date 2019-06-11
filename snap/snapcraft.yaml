@@ -3,10 +3,7 @@ base: core18
 version: '0.1'
 summary: Gadget snap for the RockPro64
 description: |
-  This is my-snap's description. You have a paragraph or two to tell the
-  most important story about your snap. Keep it under 100 words though,
-  we live in tweetspace and your description wants to look good in the snap
-  store.
+  This is the gadget snap for RockPro64 to control the bootloader.
 
 grade: stable
 confinement: strict

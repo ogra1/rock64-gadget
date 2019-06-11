@@ -1,7 +1,7 @@
 device-tree: rk3399-rockpro64.dtb
 device-tree-origin: kernel
 volumes:
-  nanopc-t4:
+  rockpro64:
     bootloader: u-boot
     schema: mbr
     structure:
